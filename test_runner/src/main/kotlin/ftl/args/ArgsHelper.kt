@@ -50,8 +50,8 @@ object ArgsHelper {
     fun assertCommonProps(args: IArgs) {
         assertNotEmpty(
             args.project, "The project is not set. Define GOOGLE_CLOUD_PROJECT, set project in flank.yml\n" +
-                    "or save service account credential to ${defaultCredentialPath}\n" +
-                    " See https://github.com/GoogleCloudPlatform/google-cloud-java#specifying-a-project-id"
+            "or save service account credential to ${defaultCredentialPath}\n" +
+            " See https://github.com/GoogleCloudPlatform/google-cloud-java#specifying-a-project-id"
         )
 
         if (args.maxTestShards !in AVAILABLE_PHYSICAL_SHARD_COUNT_RANGE && args.maxTestShards != -1)
@@ -245,7 +245,10 @@ object ArgsHelper {
     }
 }
 
-fun String.processFilePath(name: String): String =
-    if (startsWith(GCS_PREFIX))
-        this.also { ArgsHelper.assertGcsFileExists(it) } else
-        ArgsHelper.evaluateFilePath(this).also { ArgsHelper.assertFileExists(it, name) }
+fun String.normalizeFilePath(name: String): String =
+    if (startsWith(GCS_PREFIX)) this
+    else try {
+        ArgsHelper.evaluateFilePath(this)
+    } catch (e: Throwable) {
+        this
+    }
