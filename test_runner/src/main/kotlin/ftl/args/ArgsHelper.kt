@@ -24,6 +24,7 @@ import ftl.shard.createShardsByShardCount
 import ftl.shard.shardCountByTime
 import ftl.run.exception.FlankConfigurationError
 import ftl.run.exception.FlankGeneralError
+import ftl.shard.Chunk
 import ftl.shard.TestMethod
 import ftl.util.FlankTestMethod
 import ftl.util.assertNotEmpty
@@ -49,8 +50,8 @@ object ArgsHelper {
     fun assertCommonProps(args: IArgs) {
         assertNotEmpty(
             args.project, "The project is not set. Define GOOGLE_CLOUD_PROJECT, set project in flank.yml\n" +
-                    "or save service account credential to ${defaultCredentialPath}\n" +
-                    " See https://github.com/GoogleCloudPlatform/google-cloud-java#specifying-a-project-id"
+                "or save service account credential to ${defaultCredentialPath}\n" +
+                " See https://github.com/GoogleCloudPlatform/google-cloud-java#specifying-a-project-id"
         )
 
         if (args.maxTestShards !in AVAILABLE_PHYSICAL_SHARD_COUNT_RANGE && args.maxTestShards != -1)
@@ -239,12 +240,6 @@ object ArgsHelper {
     }
 }
 
-data class Chunk(val testMethods: List<TestMethod>) {
-    val testStringList = testMethods.map { it.name }
-    val size get() = testMethods.size
-}
-
 fun String.processFilePath(name: String): String =
-    if (startsWith(GCS_PREFIX))
-        this.also { ArgsHelper.assertGcsFileExists(it) } else
-        ArgsHelper.evaluateFilePath(this).also { ArgsHelper.assertFileExists(it, name) }
+    if (startsWith(GCS_PREFIX)) also { ArgsHelper.assertGcsFileExists(it) }
+    else ArgsHelper.evaluateFilePath(this).also { ArgsHelper.assertFileExists(it, name) }
