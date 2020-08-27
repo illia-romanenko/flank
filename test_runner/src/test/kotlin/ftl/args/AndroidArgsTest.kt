@@ -23,6 +23,7 @@ import ftl.test.util.assertThrowsWithMessage
 import ftl.run.exception.FlankGeneralError
 import ftl.run.exception.FlankConfigurationError
 import ftl.run.exception.IncompatibleTestDimensionError
+import ftl.shard.TestMethod
 import ftl.util.asFileReference
 import io.mockk.every
 import io.mockk.mockkStatic
@@ -1401,7 +1402,7 @@ AndroidArgs
             InstrumentationTestContext(
                 app = "app".asFileReference(),
                 test = "test".asFileReference(),
-                shards = listOf(listOf("test"), listOf("test"))
+                shards = listOf(Chunk(listOf(TestMethod(name = "test", time = 0.0))), Chunk(listOf(TestMethod(name = "test", time = 0.0))))
             )
         )
         val testSpecification = TestSpecification().setupAndroidTest(androidTestConfig)
@@ -1425,7 +1426,7 @@ AndroidArgs
             InstrumentationTestContext(
                 app = "app".asFileReference(),
                 test = "test".asFileReference(),
-                shards = listOf(listOf("test"), listOf("test"))
+                shards = listOf(Chunk(listOf(TestMethod(name = "test", time = 0.0))), Chunk(listOf(TestMethod(name = "test", time = 0.0))))
             )
         )
         val testSpecification = TestSpecification().setupAndroidTest(androidTestConfig)
@@ -1742,5 +1743,5 @@ AndroidArgs
 private fun AndroidArgs.Companion.load(yamlData: String, cli: AndroidRunCommand? = null): AndroidArgs =
     load(StringReader(yamlData), cli)
 
-fun getAndroidShardChunks(args: AndroidArgs): ShardChunks =
+fun getAndroidShardChunks(args: AndroidArgs): List<Chunk> =
     runBlocking { (args.createAndroidTestContexts().first() as InstrumentationTestContext).shards }
